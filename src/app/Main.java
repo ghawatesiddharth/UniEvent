@@ -14,7 +14,7 @@ public class Main {
     private static final Scanner scanner = new Scanner(System.in);
     private static final UserDAO userDAO = new UserDAO();
     private static final EventDAO eventDAO = new EventDAO();
-    private static User currentUser = null; // Session variable
+    private static User currentUser = null; 
 
     public static void main(String[] args) {
         System.out.println("=================================");
@@ -36,35 +36,44 @@ public class Main {
 
     // --- GUEST MENU ---
     private static void showGuestMenu() {
-        System.out.println("\n1. Login");
+        System.out.println("\n--- GUEST MENU ---");
+        System.out.println("1. Login");
         System.out.println("2. Register");
         System.out.println("3. Exit");
         System.out.print("Enter choice: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // consume newline
-
-        try {
-            switch (choice) {
-                case 1 -> login();
-                case 2 -> register();
-                case 3 -> {
-                    System.out.println("Goodbye!");
-                    System.exit(0);
+        
+        if(scanner.hasNextInt()){
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+            try {
+                switch (choice) {
+                    case 1 -> login();
+                    case 2 -> register();
+                    case 3 -> {
+                        System.out.println("Goodbye!");
+                        System.exit(0);
+                    }
+                    default -> System.out.println("Invalid choice.");
                 }
-                default -> System.out.println("Invalid choice.");
+            } catch (Exception e) {
+                System.out.println("⚠️ Error: " + e.getMessage());
             }
-        } catch (Exception e) {
-            System.out.println("⚠️ Error: " + e.getMessage());
+        } else {
+            scanner.nextLine(); // clear invalid input
+            System.out.println("Please enter a number.");
         }
     }
 
-    // --- ADMIN MENU ---
+    // --- ADMIN MENU (Updated) ---
     private static void showAdminMenu() {
         System.out.println("\n--- ADMIN DASHBOARD (" + currentUser.getName() + ") ---");
         System.out.println("1. Create New Event");
         System.out.println("2. View All Events");
-        System.out.println("3. Logout");
+        System.out.println("3. Update Event Details"); // <--- NEW
+        System.out.println("4. Delete Event");         // <--- NEW
+        System.out.println("5. Logout");
         System.out.print("Enter choice: ");
+        
         int choice = scanner.nextInt();
         scanner.nextLine();
 
@@ -72,27 +81,9 @@ public class Main {
             switch (choice) {
                 case 1 -> createEvent();
                 case 2 -> listEvents();
-                case 3 -> logout();
-                default -> System.out.println("Invalid choice.");
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
-
-    // --- STUDENT MENU ---
-    private static void showStudentMenu() {
-        System.out.println("\n--- STUDENT DASHBOARD (" + currentUser.getName() + ") ---");
-        System.out.println("1. View Upcoming Events");
-        System.out.println("2. Logout");
-        System.out.print("Enter choice: ");
-        int choice = scanner.nextInt();
-        scanner.nextLine();
-
-        try {
-            switch (choice) {
-                case 1 -> listEvents();
-                case 2 -> logout();
+                case 3 -> updateEvent();  // Calls new method
+                case 4 -> deleteEvent();  // Calls new method
+                case 5 -> logout();
                 default -> System.out.println("Invalid choice.");
             }
         } catch (Exception e) {
@@ -100,7 +91,32 @@ public class Main {
         }
     }
 
-    // --- LOGIC METHODS ---
+    // --- STUDENT MENU (Updated) ---
+    private static void showStudentMenu() {
+        System.out.println("\n--- STUDENT DASHBOARD (" + currentUser.getName() + ") ---");
+        System.out.println("1. View Upcoming Events");
+        System.out.println("2. Register for Event");     // <--- NEW
+        System.out.println("3. View My Registrations");  // <--- NEW
+        System.out.println("4. Logout");
+        System.out.print("Enter choice: ");
+        
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        try {
+            switch (choice) {
+                case 1 -> listEvents();
+                case 2 -> registerForEvent(); // Calls new method
+                case 3 -> listMyEvents();     // Calls new method
+                case 4 -> logout();
+                default -> System.out.println("Invalid choice.");
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Error: " + e.getMessage());
+        }
+    }
+
+    // --- AUTHENTICATION METHODS ---
 
     private static void register() throws DatabaseException {
         System.out.print("Enter Name: ");
@@ -139,6 +155,8 @@ public class Main {
         System.out.println("Logged out successfully.");
     }
 
+    // --- EVENT MANAGEMENT METHODS ---
+
     private static void createEvent() throws DatabaseException {
         System.out.println("\n--- Create New Event ---");
         System.out.print("Enter Title: ");
@@ -153,7 +171,6 @@ public class Main {
         int capacity = scanner.nextInt();
         scanner.nextLine();
 
-        // Admin decides type (Polymorphism in action)
         System.out.print("Type: 1. Workshop  2. Hackathon: ");
         int type = scanner.nextInt();
         scanner.nextLine();
@@ -168,14 +185,72 @@ public class Main {
         eventDAO.createEvent(event);
     }
 
+    // <--- NEW METHOD: Update Event
+    private static void updateEvent() throws DatabaseException {
+        listEvents(); // Show list so they know the ID
+        System.out.println("\n--- Update Event ---");
+        System.out.print("Enter Event ID to update: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Enter New Venue: ");
+        String venue = scanner.nextLine();
+        System.out.print("Enter New Date (YYYY-MM-DD): ");
+        String dateStr = scanner.nextLine();
+
+        eventDAO.updateEvent(id, venue, Date.valueOf(dateStr));
+    }
+
+    // <--- NEW METHOD: Delete Event
+    private static void deleteEvent() throws DatabaseException {
+        listEvents();
+        System.out.println("\n--- Delete Event ---");
+        System.out.print("Enter Event ID to delete: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.print("Are you sure you want to delete Event ID " + id + "? (yes/no): ");
+        String confirm = scanner.nextLine();
+        
+        if (confirm.equalsIgnoreCase("yes")) {
+            eventDAO.deleteEvent(id);
+        } else {
+            System.out.println("Delete cancelled.");
+        }
+    }
+
+    // <--- NEW METHOD: Register for Event
+    private static void registerForEvent() throws DatabaseException {
+        System.out.print("Enter Event ID to Register: ");
+        int eventId = scanner.nextInt();
+        scanner.nextLine();
+
+        eventDAO.registerStudent(currentUser.getId(), eventId);
+    }
+
     private static void listEvents() throws DatabaseException {
         List<Event> events = eventDAO.getAllEvents();
-        System.out.println("\n--- UPCOMING EVENTS ---");
+        System.out.println("\n--- ALL UPCOMING EVENTS ---");
+        printEventList(events);
+    }
+
+    // <--- NEW METHOD: View My Events
+    private static void listMyEvents() throws DatabaseException {
+        List<Event> events = eventDAO.getEventsForStudent(currentUser.getId());
+        System.out.println("\n--- MY REGISTRATIONS ---");
+        printEventList(events);
+    }
+    
+    // Helper to print list clearly
+    private static void printEventList(List<Event> events) {
         if (events.isEmpty()) {
             System.out.println("No events found.");
         } else {
             for (Event e : events) {
-                System.out.println(e.toString()); // Uses the overridden toString() method
+                System.out.println("ID: " + e.getId() + " | " + e.getTitle() + " (" + e.getEventType() + ")");
+                System.out.println("" + e.getVenue() + " | 📅 " + e.getDate());
+                System.out.println("" + e.getDetails());
+                System.out.println("-----------------------------------");
             }
         }
     }
