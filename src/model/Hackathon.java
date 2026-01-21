@@ -7,7 +7,6 @@ public class Hackathon extends Event {
         super(title, details, venue, date, capacity, organizerId);
     }
 
-    @Override
     public String getEventType() {
         return "HACKATHON";
     }

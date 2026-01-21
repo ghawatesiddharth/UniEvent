@@ -1,13 +1,10 @@
 package model;
 
 public class Student extends User {
-    
-    // Constructor matches Parent
-    public Student(String name, String email, String password) {
+        public Student(String name, String email, String password) {
         super(name, email, password, "STUDENT");
     }
 
-    @Override
     public void showDashboard() {
         System.out.println("\n--- STUDENT DASHBOARD ---");
         System.out.println("1. View Available Events");

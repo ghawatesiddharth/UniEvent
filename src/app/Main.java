@@ -34,7 +34,6 @@ public class Main {
         }
     }
 
-    // --- GUEST MENU ---
     private static void showGuestMenu() {
         System.out.println("\n--- GUEST MENU ---");
         System.out.println("1. Login");
@@ -44,7 +43,7 @@ public class Main {
         
         if(scanner.hasNextInt()){
             int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+            scanner.nextLine();
             try {
                 switch (choice) {
                     case 1 -> login();
@@ -56,21 +55,19 @@ public class Main {
                     default -> System.out.println("Invalid choice.");
                 }
             } catch (Exception e) {
-                System.out.println("⚠️ Error: " + e.getMessage());
+                System.out.println("Error: " + e.getMessage());
             }
         } else {
-            scanner.nextLine(); // clear invalid input
+            scanner.nextLine();
             System.out.println("Please enter a number.");
         }
     }
-
-    // --- ADMIN MENU (Updated) ---
     private static void showAdminMenu() {
         System.out.println("\n--- ADMIN DASHBOARD (" + currentUser.getName() + ") ---");
         System.out.println("1. Create New Event");
         System.out.println("2. View All Events");
-        System.out.println("3. Update Event Details"); // <--- NEW
-        System.out.println("4. Delete Event");         // <--- NEW
+        System.out.println("3. Update Event Details"); 
+        System.out.println("4. Delete Event");       
         System.out.println("5. Logout");
         System.out.print("Enter choice: ");
         
@@ -81,22 +78,21 @@ public class Main {
             switch (choice) {
                 case 1 -> createEvent();
                 case 2 -> listEvents();
-                case 3 -> updateEvent();  // Calls new method
-                case 4 -> deleteEvent();  // Calls new method
+                case 3 -> updateEvent(); 
+                case 4 -> deleteEvent(); 
                 case 5 -> logout();
                 default -> System.out.println("Invalid choice.");
             }
         } catch (Exception e) {
-            System.out.println("⚠️ Error: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
-    // --- STUDENT MENU (Updated) ---
     private static void showStudentMenu() {
         System.out.println("\n--- STUDENT DASHBOARD (" + currentUser.getName() + ") ---");
         System.out.println("1. View Upcoming Events");
-        System.out.println("2. Register for Event");     // <--- NEW
-        System.out.println("3. View My Registrations");  // <--- NEW
+        System.out.println("2. Register for Event");    
+        System.out.println("3. View My Registrations");
         System.out.println("4. Logout");
         System.out.print("Enter choice: ");
         
@@ -106,17 +102,15 @@ public class Main {
         try {
             switch (choice) {
                 case 1 -> listEvents();
-                case 2 -> registerForEvent(); // Calls new method
-                case 3 -> listMyEvents();     // Calls new method
+                case 2 -> registerForEvent();
+                case 3 -> listMyEvents();    
                 case 4 -> logout();
                 default -> System.out.println("Invalid choice.");
             }
         } catch (Exception e) {
-            System.out.println("⚠️ Error: " + e.getMessage());
+            System.out.println(" Error: " + e.getMessage());
         }
     }
-
-    // --- AUTHENTICATION METHODS ---
 
     private static void register() throws DatabaseException {
         System.out.print("Enter Name: ");
@@ -147,16 +141,13 @@ public class Main {
         String password = scanner.nextLine();
 
         currentUser = userDAO.loginUser(email, password);
-        System.out.println("✅ Login Successful! Welcome " + currentUser.getName());
+        System.out.println("Login Successful! Welcome " + currentUser.getName());
     }
 
     private static void logout() {
         currentUser = null;
         System.out.println("Logged out successfully.");
     }
-
-    // --- EVENT MANAGEMENT METHODS ---
-
     private static void createEvent() throws DatabaseException {
         System.out.println("\n--- Create New Event ---");
         System.out.print("Enter Title: ");
@@ -184,10 +175,8 @@ public class Main {
 
         eventDAO.createEvent(event);
     }
-
-    // <--- NEW METHOD: Update Event
     private static void updateEvent() throws DatabaseException {
-        listEvents(); // Show list so they know the ID
+        listEvents(); 
         System.out.println("\n--- Update Event ---");
         System.out.print("Enter Event ID to update: ");
         int id = scanner.nextInt();
@@ -200,8 +189,6 @@ public class Main {
 
         eventDAO.updateEvent(id, venue, Date.valueOf(dateStr));
     }
-
-    // <--- NEW METHOD: Delete Event
     private static void deleteEvent() throws DatabaseException {
         listEvents();
         System.out.println("\n--- Delete Event ---");
@@ -218,8 +205,6 @@ public class Main {
             System.out.println("Delete cancelled.");
         }
     }
-
-    // <--- NEW METHOD: Register for Event
     private static void registerForEvent() throws DatabaseException {
         System.out.print("Enter Event ID to Register: ");
         int eventId = scanner.nextInt();
@@ -233,22 +218,18 @@ public class Main {
         System.out.println("\n--- ALL UPCOMING EVENTS ---");
         printEventList(events);
     }
-
-    // <--- NEW METHOD: View My Events
     private static void listMyEvents() throws DatabaseException {
         List<Event> events = eventDAO.getEventsForStudent(currentUser.getId());
         System.out.println("\n--- MY REGISTRATIONS ---");
         printEventList(events);
     }
-    
-    // Helper to print list clearly
-    private static void printEventList(List<Event> events) {
+        private static void printEventList(List<Event> events) {
         if (events.isEmpty()) {
             System.out.println("No events found.");
         } else {
             for (Event e : events) {
                 System.out.println("ID: " + e.getId() + " | " + e.getTitle() + " (" + e.getEventType() + ")");
-                System.out.println("" + e.getVenue() + " | 📅 " + e.getDate());
+                System.out.println("" + e.getVenue() + " | " + e.getDate());
                 System.out.println("" + e.getDetails());
                 System.out.println("-----------------------------------");
             }

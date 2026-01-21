@@ -33,7 +33,6 @@ public abstract class Event {
     public int getCapacity() { return capacity; }
     public int getOrganizerId() { return organizerId; }
     
-    @Override
     public String toString() {
         return String.format("[%s] %s | Venue: %s | Date: %s | Slots: %d", 
             getEventType(), title, venue, date, capacity);
